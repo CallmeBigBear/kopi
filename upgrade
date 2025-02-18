@@ -1,6 +1,6 @@
 #!/bin/bash
 # VNNODE AUTO UPGRADE
-if [[ $1 == "" ]]; then
+if [[ $# -lt 1 ]]; then
     echo "ERROR: Enter new version | e.g. v14"
     exit
 fi
@@ -32,7 +32,7 @@ getOsArch() {
         fi
 }
 getOsArch
-if [ $? -eq 2 ];then
+if [[ $? -eq 2 ]];then
   cd $HOME && rm kopi -r
   git clone https://github.com/kopi-money/kopi.git
   cd kopi
@@ -42,7 +42,7 @@ if [ $? -eq 2 ];then
   /root/kopi/bin/kopid version
   echo "Waiting 5s..."
   sleep 5
-  if [ $DEST_HEIGHT != 0 ]; then
+  if [[ $DEST_HEIGHT != 0 ]]; then
     echo -e "${BLUE}HEIGHT TO UPGRADE: $DEST_HEIGHT ${NC}"
     while :
       do
@@ -65,7 +65,7 @@ else
   echo -e "${GREEN}NEW VERSION READY FOR UPGRADE${NC}"
   echo "Waiting 5s..."
   sleep 5
-  if [ $DEST_HEIGHT != 0 ]; then
+  if [[ $DEST_HEIGHT != 0 ]]; then
     printf "\033[91mHEIGHT TO UPGRADE: $DEST_HEIGHT \033[0m"
     while :
     do
