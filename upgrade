@@ -39,7 +39,7 @@ if [[ $? -eq 2 ]];then
   /root/kopi/bin/kopid version
   echo -e "\n ${NC}"
   echo "Waiting 15s..."
-  sleep 5
+  sleep 15
   if [  ! -z "$2" ]; then
     echo -e "${YELLOW}HEIGHT TO UPGRADE: $DEST_HEIGHT ${NC}"
     while :
@@ -61,7 +61,7 @@ else
   ./kopid version
   echo -e "############################################\n ${NC}"
   echo "Waiting 15s..."
-  sleep 5
+  sleep 15
   if [ ! -z "$2" ]; then
     echo -e "${YELLOW}HEIGHT TO UPGRADE: $DEST_HEIGHT ${NC}"
     while :
