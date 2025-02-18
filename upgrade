@@ -39,7 +39,7 @@ if [ $? -eq 2 ];then
   git checkout $BINARY_VERSION
   make build
   echo -e "${GREEN}NEW VERSION READY FOR UPGRADE${NC}"
-  ./bin/kopid version
+  /root/kopi/bin/kopid version
   echo "Waiting 5s..."
   sleep 5
   if [ $DEST_HEIGHT != 0 ]; then
@@ -47,12 +47,12 @@ if [ $? -eq 2 ];then
     while :
       do
         CURRENT_HEIGHT=$(curl -s localhost:$RPC_PORT/status | jq -r .result.sync_info.latest_block_height)
-        [[ $CURRENT_HEIGHT == $DEST_HEIGHT ]] && mv bin/kopid $BINARY_LOCATION && systemctl restart kopid && echo -e "${GREEN}UPGRADE SUCCESSFULLY!!!${NC}" && break
+        [[ $CURRENT_HEIGHT == $DEST_HEIGHT ]] && mv /root/kopi/bin/kopid $BINARY_LOCATION && systemctl restart kopid && echo -e "${GREEN}UPGRADE SUCCESSFULLY!!!${NC}" && break
         echo Block left: $((DEST_HEIGHT - CURRENT_HEIGHT))
         sleep 15
       done
   else
-    mv bin/kopid $BINARY_LOCATION && systemctl restart kopid && echo "UPGRADE SUCCESSFULLY!!!"
+    mv /root/kopi/bin/kopid $BINARY_LOCATION && systemctl restart kopid && echo "UPGRADE SUCCESSFULLY!!!"
   fi
 else
   wget -O kopid $BINARY_LINK && chmod +x kopid
