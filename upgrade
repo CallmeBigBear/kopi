@@ -13,7 +13,7 @@ BINARY_VERSION=$1
 BINARY_LINK="https://github.com/kopi-money/kopi/releases/download/$1/kopid-$1-linux-amd64"
 DEST_HEIGHT=$2
 RPC_PORT=$(grep -m 1 -oP '^laddr = "\K[^"]+' "$HOME/.kopid/config/config.toml" | cut -d ':' -f 3)
-BINARY_LOCATION=$(which kopid)
+BINARY_LOCATION="$(which kopid)"
 if command -v jq &> /dev/null; then
     echo "jq INSTALLED"
 else
