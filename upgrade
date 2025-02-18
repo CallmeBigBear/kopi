@@ -40,6 +40,7 @@ if [ $? -eq 2 ];then
   make build
   echo -e "${GREEN}NEW VERSION READY FOR UPGRADE${NC}"
   ./bin/kopid version
+  echo "Waiting 5s..."
   sleep 5
   if [ $DEST_HEIGHT != 0 ]; then
     echo -e "${BLUE}HEIGHT TO UPGRADE: $DEST_HEIGHT ${NC}"
@@ -62,6 +63,7 @@ else
   echo "NEW VERSION:"
   ./kopid version
   echo -e "${GREEN}NEW VERSION READY FOR UPGRADE${NC}"
+  echo "Waiting 5s..."
   sleep 5
   if [ $DEST_HEIGHT != 0 ]; then
     printf "\033[91mHEIGHT TO UPGRADE: $DEST_HEIGHT \033[0m"
