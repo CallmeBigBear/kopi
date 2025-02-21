@@ -29,7 +29,7 @@ else
         ARMCHECK=1;
 fi
 clear
-echo -e "${RED}\n############################################\nPACTUS UPGRADE BY NODDEX.COM\n############################################${NC}"
+echo -e "${RED}\n############################################\nKOPI UPGRADE BY NODDEX.COM\n############################################${NC}"
 if [[ $ARMCHECK -eq 2 ]];then
   cd $HOME && rm kopi -r
   git clone https://github.com/kopi-money/kopi.git > /dev/null
