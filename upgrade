@@ -36,9 +36,9 @@ if [[ $ARMCHECK -eq 2 ]];then
   cd kopi
   git checkout $BINARY_VERSION
   make build
-  echo -e "${YELLOW}NEW VERSION IS READY FOR UPGRADE"
+  echo -e "${YELLOW}\n############################################\nNEW VERSION IS READY FOR UPGRADE"
   /root/kopi/bin/kopid version
-  echo -e "\n ${NC}"
+  echo -e "\n############################################${NC}"
   echo "Waiting 15s..."
   sleep 15
   if [  ! -z "$2" ]; then
