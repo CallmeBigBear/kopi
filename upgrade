@@ -23,13 +23,13 @@ a=`arch`
 str="aarch"
 result=$(echo $a | grep "${str}")
 if [[ "$result" != "" ]]; then
-        return 2;
+        ARMCHECK=2;
 else
-        return 1;
+        ARMCHECK=1;
 fi
 clear
 echo -e "${RED}\n############################################\nPACTUS UPGRADE BY NODDEX.COM\n############################################${NC}"
-if [[ $? -eq 2 ]];then
+if [[ $ARMCHECK -eq 2 ]];then
   cd $HOME && rm kopi -r
   git clone https://github.com/kopi-money/kopi.git > /dev/null
   cd kopi
