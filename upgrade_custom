@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# KOPI AUTO UPGRADE BY NODDEX (Enhanced by Grok)
-# Script to automatically upgrade Kopi node with error checking and logging
+# KOPI AUTO UPGRADE BY CALLMEBIGBEAR.XYZ
+# Script to automatically upgrade Kopi node
 
 # Color codes for output
 GREEN="\e[1;32m"
