@@ -1,0 +1,162 @@
+#!/bin/bash
+
+# KOPI AUTO UPGRADE BY NODDEX (Enhanced by Grok)
+# Script to automatically upgrade Kopi node with error checking and logging
+
+# Color codes for output
+GREEN="\e[1;32m"
+RED="\e[1;31m"
+YELLOW="\e[1;33m"
+BLUE="\033[0;34m"
+NC="\e[0m"
+
+# Log file path
+LOG_FILE="$HOME/kopi_upgrade_$(date +%F_%H-%M-%S).log"
+
+# Function to log messages
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Function to display error and exit
+error_exit() {
+    log "${RED}ERROR: $1${NC}"
+    exit 1
+}
+
+# Check for input parameters
+if [[ $# -lt 1 ]]; then
+    echo -e "${RED}ERROR: Please provide the new version (e.g., v14)${NC}"
+    exit 1
+fi
+
+BINARY_VERSION="$1"
+DEST_HEIGHT="$2"
+BINARY_LINK="https://github.com/kopi-money/kopi/releases/download/$1/kopid-$1-linux-amd64"
+BINARY_LOCATION="$(which kopid)"
+BACKUP_LOCATION="$HOME/kopid_backup_$(date +%F_%H-%M-%S)"
+
+# Verify current binary exists
+if [[ -z "$BINARY_LOCATION" ]]; then
+    error_exit "kopid binary not found in PATH"
+fi
+
+# Extract RPC port from config file
+CONFIG_FILE="$HOME/.kopid/config/config.toml"
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    error_exit "Config file not found at $CONFIG_FILE"
+fi
+RPC_PORT=$(grep -m 1 -oP '^laddr = "\K[^"]+' "$CONFIG_FILE" | cut -d ':' -f 3)
+if [[ -z "$RPC_PORT" ]]; then
+    error_exit "Unable to extract RPC port from config file"
+fi
+
+# Check RPC connection
+if ! curl -s "localhost:$RPC_PORT/status" > /dev/null; then
+    error_exit "Unable to connect to RPC port $RPC_PORT. Please check node status."
+fi
+
+# Install jq if not present
+if ! command -v jq &> /dev/null; then
+    log "Installing jq..."
+    if ! apt update && apt install jq -y >> "$LOG_FILE" 2>&1; then
+        error_exit "Failed to install jq"
+    fi
+    log "jq installed successfully"
+fi
+
+# Check CPU architecture
+ARCH=$(arch)
+if [[ "$ARCH" == *"aarch"* ]]; then
+    ARMCHECK=2
+else
+    ARMCHECK=1
+fi
+
+# Function to backup current binary
+backup_binary() {
+    log "Backing up current binary from $BINARY_LOCATION to $BACKUP_LOCATION"
+    cp "$BINARY_LOCATION" "$BACKUP_LOCATION" || error_exit "Failed to backup binary"
+}
+
+# Function to upgrade for ARM architecture
+upgrade_arm() {
+    log "Building binary for ARM architecture..."
+    cd "$HOME" || error_exit "Cannot change to $HOME directory"
+    rm -rf kopi
+    if ! git clone https://github.com/kopi-money/kopi.git >> "$LOG_FILE" 2>&1; then
+        error_exit "Failed to clone repository"
+    fi
+    cd kopi || error_exit "Cannot change to kopi directory"
+    if ! git checkout "$BINARY_VERSION" >> "$LOG_FILE" 2>&1; then
+        error_exit "Failed to checkout version $BINARY_VERSION"
+    fi
+    if ! make build >> "$LOG_FILE" 2>&1; then
+        error_exit "Failed to build binary"
+    fi
+    log "${YELLOW}New version ready:${NC}"
+    /root/kopi/bin/kopid version | tee -a "$LOG_FILE"
+}
+
+# Function to upgrade for non-ARM architecture
+upgrade_non_arm() {
+    log "Downloading binary from $BINARY_LINK..."
+    if ! wget -O kopid "$BINARY_LINK" >> "$LOG_FILE" 2>&1; then
+        error_exit "Failed to download binary"
+    fi
+    chmod +x kopid || error_exit "Failed to set executable permissions for binary"
+    log "${YELLOW}Current binary location: $BINARY_LOCATION${NC}"
+    log "${YELLOW}Old version:${NC}"
+    kopid version | tee -a "$LOG_FILE"
+    log "${YELLOW}New version:${NC}"
+    ./kopid version | tee -a "$LOG_FILE"
+}
+
+# Function to perform the upgrade
+perform_upgrade() {
+    log "Waiting 15 seconds before upgrade..."
+    sleep 15
+    if [[ -n "$DEST_HEIGHT" ]]; then
+        log "${YELLOW}Waiting for block height: $DEST_HEIGHT${NC}"
+        while true; do
+            CURRENT_HEIGHT=$(curl -s "localhost:$RPC_PORT/status" | jq -r .result.sync_info.latest_block_height)
+            if [[ -z "$CURRENT_HEIGHT" ]]; then
+                error_exit "Unable to retrieve current block height"
+            fi
+            if [[ "$CURRENT_HEIGHT" -ge "$DEST_HEIGHT" ]]; then
+                mv kopid "$BINARY_LOCATION" || error_exit "Failed to move binary"
+                systemctl restart kopid || error_exit "Failed to restart kopid service"
+                log "${GREEN}UPGRADE SUCCESSFUL!${NC}"
+                break
+            fi
+            log "Blocks remaining: $(($DEST_HEIGHT - $CURRENT_HEIGHT))"
+            sleep 15
+        done
+    else
+        mv kopid "$BINARY_LOCATION" || error_exit "Failed to move binary"
+        systemctl restart kopid || error_exit "Failed to restart kopid service"
+        log "${GREEN}UPGRADE SUCCESSFUL!${NC}"
+    fi
+}
+
+# Start upgrade process
+clear
+log "${RED}============================================"
+log "KOPI UPGRADE BY CALLMEBIGBEAR.XYZ"
+log "===========================================${NC}"
+
+# Backup current binary
+backup_binary
+
+# Perform upgrade based on architecture
+if [[ $ARMCHECK -eq 2 ]]; then
+    upgrade_arm
+else
+    upgrade_non_arm
+fi
+
+# Execute upgrade
+perform_upgrade
+
+log "${GREEN}Upgrade process completed. Log saved at: $LOG_FILE${NC}"
+log "${YELLOW}Old binary backed up at: $BACKUP_LOCATION${NC}"
