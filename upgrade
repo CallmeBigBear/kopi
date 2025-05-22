@@ -1,5 +1,5 @@
 #!/bin/bash
-# KOPI AUTO UPGRADE BY NODDEX
+# KOPI AUTO-UPGRADE #CALLMEBIGBEAR
 if [[ $# -lt 1 ]]; then
     echo "ERROR: Enter new version | e.g. v14"
     exit
