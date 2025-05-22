@@ -11,7 +11,7 @@ BLUE="\033[0;34m"
 NC="\e[0m"
 
 # Log file path
-LOG_FILE="$HOME/kopi_upgrade_$(date +%F_%H-%M-%S).log"
+LOG_FILE="$HOME/kopi_upgrade.log"
 
 # Function to log messages
 log() {
